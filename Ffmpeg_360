@@ -1,0 +1,28 @@
+#!/bin/bash
+#This will split, defish, blend and re-assemble Samsung Gear 360 video
+map_dir="/data/Projects/RemapFilter"
+ffmpeg -y -i "$1" \
+-i $map_dir/lx.pgm -i $map_dir/ly.pgm -loop 1 \
+-i $map_dir/Alpha-Map.png \
+-i $map_dir/rx.pgm -i $map_dir/ry.pgm \
+-c:v hevc_nvenc -rc constqp -qp 26 -cq 26 \
+-filter_complex \
+"[0:v]crop=in_w/2:in_h:0:in_h[l_crop];\
+ [0:v]crop=in_w/2:in_h:in_w/2:in_h[r_crop]; \
+ [3]alphaextract[alf]; \
+ [l_crop]eq=contrast=0.8:brightness=-0.03:gamma=0.9:saturation=0.8:gamma_r=1.06[l_col]; \
+ [r_crop]eq=contrast=0.8:brightness=-0.03:gamma=0.9:saturation=0.8:gamma_r=1.04[r_col]; \
+ [l_col]vignette=angle=0.57:mode=backward:x0=w/2-60:y0=h/2-50[l_vignette]; \
+ [r_col]vignette=angle=0.55:mode=backward:x0=w/2+0:y0=h/2-50[r_vignette]; \
+ [l_vignette][1][2]remap[l_remap]; \
+ [r_vignette][4][5]remap[r_remap]; \
+ [l_remap]crop=in_w:1920:0:(in_h-1920)/2[l_rm_crop]; \
+ [r_remap]crop=in_w:1920:0:(in_h-1920)/2[r_rm_crop]; \
+ [l_rm_crop][alf]alphamerge[l_rm_crop_a]; \
+ [l_rm_crop_a]split=2[l_rm_crop1][l_rm_crop2]; \
+ [l_rm_crop1]crop=in_w/2:in_h:0:0[l_rm_crop_l]; \
+ [l_rm_crop2]crop=in_w/2:in_h:in_w/2:0[l_rm_crop_r]; \
+ [0:v][r_rm_crop]overlay=(1920-(2028/2)):0[ov1]; \
+ [ov1][l_rm_crop_l]overlay=((1920+2028/2)-(2028-1920)):0[ov2]; \
+ [ov2][l_rm_crop_r]overlay=0:0[out]" \
+-map [out] -map 0:a "$1_Remapped.mp4"
