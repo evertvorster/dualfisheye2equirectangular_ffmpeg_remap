@@ -10,22 +10,23 @@
     if [[ -z "$base" && -n "$ext" ]]; then             # If we have an extension and no base, it's really the base
       base=".$ext"
        ext=""
+    fi
 
 #set where the maps are kept
 map_dir="."
 
-"Ffmpeg's wonderful remap filter
+#Ffmpeg's wonderful remap filter
 ffmpeg -y -i "$1" \
 -i $map_dir/l0000_x.tif -i $map_dir/l0000_y.tif \
 -loop 1 -i $map_dir/Alpha_Map.png \
 -i $map_dir/r0000_x.tif -i $map_dir/r0000_y.tif \
--c:v hevc_nvenc -rc constqp -qp 26 -cq 26 \
+-c:v hevc_nvenc -rc constqp -qp 20 -cq 20 \
 -filter_complex \
 "[3]alphaextract[alf]; \
  [v:0][1][2]remap[l_remap]; \
  [v:0][4][5]remap[r_remap]; \
  [r_remap][alf]alphamerge[r_rm_a]; \
  [l_remap][r_rm_a]overlay=0:0[out]" \
- -map [out] -map 0:a "$base_Remap_360.mp4"
+ -map [out] -map 0:a $base"_Remap_360.mp4"
 
 
