@@ -1,6 +1,10 @@
 #!/bin/bash
 #This will split, defish, blend and re-assemble Samsung Gear 360 video
 
+#trap Ctrl-C
+set -e
+trap 'printf "Received SIGINT: Terminating.\n"; exit 130' INT
+
 #dealing with filenames and extentions
   fullpath="$1"
   filename="${fullpath##*/}"                           # Strip longest match of */ from start
@@ -20,13 +24,18 @@ ffmpeg -y -i "$1" \
 -i $map_dir/l0000_x.tif -i $map_dir/l0000_y.tif \
 -loop 1 -i $map_dir/Alpha_Map.png \
 -i $map_dir/r0000_x.tif -i $map_dir/r0000_y.tif \
--c:v hevc_nvenc -rc constqp -qp 20 -cq 20 \
+-c:v hevc_nvenc -rc constqp -qp 21 -cq 21 \
 -filter_complex \
 "[3]alphaextract[alf]; \
- [v:0][1][2]remap[l_remap]; \
- [v:0][4][5]remap[r_remap]; \
+ [v:0]split=2[l][r]; \
+ [l]eq=contrast=0.8:brightness=-0.1:gamma=1.1:saturation=0.9:gamma_r=1.06[l_eq]; \
+ [r]eq=contrast=0.8:brightness=-0.1:gamma=1.1:saturation=0.9:gamma_r=1.06[r_eq]; \
+ [l_eq]vignette=angle=1:mode=backward:x0=w/4-0+2.4:y0=h/2+87[l_vig]; \
+ [r_eq]vignette=angle=1:mode=backward:x0=w/2+w/4-2.5:y0=h/2+5.9[r_vig]; \
+ [l_vig][1][2]remap[l_remap]; \
+ [r_vig][4][5]remap[r_remap]; \
  [r_remap][alf]alphamerge[r_rm_a]; \
  [l_remap][r_rm_a]overlay=0:0[out]" \
- -map [out] -map 0:a $base"_Remap_360.mp4"
+ -map [out] -map 0:a $base"_Remap_360.mp4" < /dev/null
 
-
+#-hwaccel cuvid -c:v hevc_cuvid
