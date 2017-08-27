@@ -34,11 +34,7 @@ if  ffmpeg -y -i "$1" \
   -i $map_dir/l0000_x.tif -i $map_dir/l0000_y.tif \
   -loop 1 -i $map_dir/Alpha_Map.png \
   -i $map_dir/r0000_x.tif -i $map_dir/r0000_y.tif \
-  -metadata:s:v spherical-video='<rdf:SphericalVideo \
-  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" \
-  xmlns:GSpherical="http://ns.google.com/videos/1.0/spherical/"> \
-  <GSpherical:Spherical>true</GSpherical:Spherical> <GSpherical:Stitched>true</GSpherical:Stitched> \
-  <GSpherical:ProjectionType>equirectangular</GSpherical:ProjectionType> </rdf:SphericalVideo>'
+  -metadata:s:v spherical-video='<rdf:SphericalVideo xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:GSpherical="http://ns.google.com/videos/1.0/spherical/"> <GSpherical:Spherical>true</GSpherical:Spherical> <GSpherical:Stitched>true</GSpherical:Stitched> <GSpherical:ProjectionType>equirectangular</GSpherical:ProjectionType> </rdf:SphericalVideo>' \
   -c:v hevc_nvenc -rc constqp -qp 21 -cq 21 \
   -filter_complex \
   "[3]alphaextract[alf]; \
