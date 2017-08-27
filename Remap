@@ -46,7 +46,7 @@ if  ffmpeg -y -i "$1" \
    [r_vig][4][5]remap[r_remap]; \
    [r_remap][alf]alphamerge[r_rm_a]; \
    [l_remap][r_rm_a]overlay=0:0[out]" \
-   -map [out] -map 0:a $base"_Remap_360.mp4" < /dev/null ;
+   -map [out] -map 0:a? $base"_Remap_360.mp4" < /dev/null ;
 then
  Success_Remap $1 $base"_Remap_360.mp4" 
 else
