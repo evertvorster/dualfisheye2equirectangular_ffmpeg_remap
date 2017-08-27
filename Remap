@@ -34,6 +34,11 @@ if  ffmpeg -y -i "$1" \
   -i $map_dir/l0000_x.tif -i $map_dir/l0000_y.tif \
   -loop 1 -i $map_dir/Alpha_Map.png \
   -i $map_dir/r0000_x.tif -i $map_dir/r0000_y.tif \
+  -metadata:s:v spherical-video='<rdf:SphericalVideo \
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" \
+  xmlns:GSpherical="http://ns.google.com/videos/1.0/spherical/"> \
+  <GSpherical:Spherical>true</GSpherical:Spherical> <GSpherical:Stitched>true</GSpherical:Stitched> \
+  <GSpherical:ProjectionType>equirectangular</GSpherical:ProjectionType> </rdf:SphericalVideo>'
   -c:v hevc_nvenc -rc constqp -qp 21 -cq 21 \
   -filter_complex \
   "[3]alphaextract[alf]; \
@@ -46,10 +51,10 @@ if  ffmpeg -y -i "$1" \
    [r_vig][4][5]remap[r_remap]; \
    [r_remap][alf]alphamerge[r_rm_a]; \
    [l_remap][r_rm_a]overlay=0:0[out]" \
-   -map [out] -map 0:a? $base"_Remap_360.mp4" < /dev/null ;
+   -map [out] -map 0:a? "$base""_Remap_360.mkv" < /dev/null ;
 then
- Success_Remap $1 $base"_Remap_360.mp4" 
+ Success_Remap "$1" "$base""_Remap_360.mkv" 
 else
- rm -f $base"_Remap_360.mp4"
+ rm -f "$base""_Remap_360.mkv"
 fi
 #-hwaccel cuvid -c:v hevc_cuvid
