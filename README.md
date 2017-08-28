@@ -93,11 +93,27 @@ bucket fill the area between the gradients and earlier black selection with blac
 Delete the two layers with images
 Export the image as "Alpha_Map.png"
 
+The Multimap script contains all the ffmpeg magic that actually does the 
+heavy lifting. 
+
+Inside the script there are some variables that can be set. 
+The first is "map_dir" which points to the directory in which all the tiff 
+files generated in the above steps have been saved. (I am still pondering
+a proper place for them)
+
+The second variable is "remap_dir" and this is the destination of the 
+remapped output files. Currently it just generates a subdirectory in the 
+current directory, and put the files in there. 
+
+
 Run the Multimap script on the input file with the input file as the only
 argument
 
-If this works nicely for you, you can place the "Remap" script in a directory 
-on your path. Place the maps in a directory and modify the "map_dir"
-variable in the script to point to that directory. 
-Currently the script is using hardware nVidia accell, if this does not
-work for you, use libx265 instead of hevc_nvenc
+The Multimap script is friendly towards bash, in that it can be used in 
+a command line like the following:
+ls | grep -v JPG | while read; do Multimap $REPLY; done
+
+This should remap all the files in the current directory. 
+
+:)
+
