@@ -49,6 +49,14 @@ Clean control points
 ....
 keep on doing this until the average distance between control points is 1.
 
+Next thing is photometric optimisations. 
+Select custom parameters in photometric optimization drop-down.
+Click on the Exposure tab that opens
+un-select x, y coordinates. 
+copy the lens parameters for x and y into the vignetting.
+Hit "optimize"
+
+
 Set output canvas size to 3840x1920
 Save your Hugin project as "dual leans optimize.pto"
 
@@ -57,55 +65,35 @@ Save your project as "Left.pto"
 Undo the delete, and delete all the images except the first right-hand image. 
 Save your project as "Right.pto"
 
+Create an image that is a flat grey of the same dimensions as the video canvas.
+In Hex "888888"
+I called mine "grey.tif"
+
 On a command line, run
-nona -c Left.pto -o l
+nona -c Left.pto grey.tif -o l
 
 then run
-nona -c Right.pto -o r
+nona -c Right.pto grey.tif -o r
 
-This should generate the 4 maps the remap filter fo ffmpeg needs. 
-It also generates a l.tif and r.tif
+This should generate the 6 maps the remap filter fo ffmpeg needs. 
 
-Load l.tif in GIMP.
+Load l0000.tif in GIMP.
 Use the fuzzy select tool, and select the transparent part of the image.
-Load r.tif as a layer in the same gimp.
+Load r0000.tif as a layer in the same gimp.
 They should now be nicely overlaid, and you should have a nice band of overlap.
 Add another transparent layer.
 Select the new layer
 Fill the selection with black
-Select nothing
-Use the airbrush tool
-Set brush size to 300
-Trace the sides of the black filled rectange, so that the transition between 
-black and transparent is somewhere on the overlap.
+Use rectangular select to select a rectangle on the overlap between the images.
+Fill with gradient foreground to transparent, so that the forground is on the
+black selection earlier
+Repeat on the other sidie of the earlier black selection
+bucket fill the area between the gradients and earlier black selection with black
 
 Delete the two layers with images
 Export the image as "Alpha_Map.png"
 
-Take the following block of text and paste it into a text file:
------------------------------------------------------------------
-#!/bin/bash
-#This will split, defish, blend and re-assemble Samsung Gear 360 video
-map_dir="."
-ffmpeg -y -i "$1" \
--i $map_dir/l0000_x.tif -i $map_dir/l0000_y.tif \
--loop 1 -i $map_dir/Alpha_Map.png \
--i $map_dir/r0000_x.tif -i $map_dir/r0000_y.tif \
--c:v hevc_nvenc -rc constqp -qp 20 -cq 20 \
--filter_complex \
-"[3]alphaextract[alf]; \
- [v:0][1][2]remap[l_remap]; \
- [v:0][4][5]remap[r_remap]; \
- [r_remap][alf]alphamerge[r_rm_a]; \
- [l_remap][r_rm_a]overlay=0:0[out]" \
- -map [out] -map 0:a "$1_out.mp4"
-------------------------------------------------------------------
-
-Save the text file as "Remap"
-run the following command
-chmod a+x Remap
-
-Run the Remap script on the input file with the input file as the only
+Run the Multimap script on the input file with the input file as the only
 argument
 
 If this works nicely for you, you can place the "Remap" script in a directory 
