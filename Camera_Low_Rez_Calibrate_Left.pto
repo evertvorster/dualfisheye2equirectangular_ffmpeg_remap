@@ -1,0 +1,43 @@
+# hugin project file
+#hugin_ptoversion 2
+p f2 w3840 h1920 v360  E-0.0153582 R0 n"TIFF_m c:LZW r:CROP"
+m g1 i0 f0 m2 p0.00784314
+
+# image lines
+#-hugin  cropFactor=1
+i w3840 h1920 f2 v386.18 Ra-3.3076000213623 Rb2.92866992950439 Rc0.716170012950897 Rd-0.310059994459152 Re-0.453570008277893 Eev0 Er1 Eb1 r0 p0 y180 TrX0 TrY0 TrZ0 Tpy0 Tpp0 j0 a-0.31735 b0.57384 c-0.15517 d-962.78 e20 g0 t0 Va1 Vb-0.96409 Vc-4.78377 Vd-1.81719 Vx-960 Vy25  S0,1920,0,1920 Vm5 n"360_0306.JPG"
+
+
+# specify variables that should be optimized
+v
+
+
+# control points
+
+#hugin_optimizeReferenceImage 0
+#hugin_blender enblend
+#hugin_remapper nona
+#hugin_enblendOptions 
+#hugin_enfuseOptions 
+#hugin_hdrmergeOptions -m avg -c
+#hugin_verdandiOptions 
+#hugin_outputLDRBlended true
+#hugin_outputLDRLayers false
+#hugin_outputLDRExposureRemapped false
+#hugin_outputLDRExposureLayers false
+#hugin_outputLDRExposureBlended false
+#hugin_outputLDRStacks false
+#hugin_outputLDRExposureLayersFused false
+#hugin_outputHDRBlended false
+#hugin_outputHDRLayers false
+#hugin_outputHDRStacks false
+#hugin_outputLayersCompression LZW
+#hugin_outputImageType jpg
+#hugin_outputImageTypeCompression LZW
+#hugin_outputJPEGQuality 90
+#hugin_outputImageTypeHDR exr
+#hugin_outputImageTypeHDRCompression LZW
+#hugin_outputStacksMinOverlap 0.7
+#hugin_outputLayersExposureDiff 0.5
+#hugin_optimizerMasterSwitch 1
+#hugin_optimizerPhotoMasterSwitch 0

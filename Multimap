@@ -12,36 +12,73 @@ echo "Successful ffmpeg run."
 chmod --reference="$1" "$2"
 chown --reference="$1" "$2"
 touch --reference="$1" "$2"
+mv -v "$1" "$3""/""$1"
 }
+#set where the maps are kept
+map_dir="/data/Projects/RemapFilter"
+#  set where the remaps go
+remap_dir="Remap"
+original_dir="Original"
+mkdir -p "$remap_dir" 
+mkdir -p "$original_dir"
 
 
-#dealing with filenames and extentions
-  fullpath="$1"
+#find all files in directory
+find -maxdepth 1 -type f | while read; do 
+#  dealing with filenames and extentions
+  fullpath="$REPLY"
   filename="${fullpath##*/}"                           # Strip longest match of */ from start
        dir="${fullpath:0:${#fullpath} - ${#filename}}" # Substring from 0 thru pos of filename
       base="${filename%.[^.]*}"                        # Strip shortest match of . plus at least one non-dot char from end
        ext="${filename:${#base} + 1}"                  # Substring from len of base thru end
-    if [[ -z "$base" && -n "$ext" ]]; then             # If we have an extension and no base, it's really the base
+  if [[ -z "$base" && -n "$ext" ]]; then             # If we have an extension and no base, it's really the base
       base=".$ext"
        ext=""
-    fi
-
-#set where the maps are kept
-map_dir="/data/Projects/RemapFilter/"
-#set where the remaps go
-remap_dir="Remap"
-mkdir -p "$remap_dir"
-#Ffmpeg's wonderful remap filter
-if  ffmpeg -y -i "$1" \
-  -i "$map_dir"/l0000_x.tif -i "$map_dir"/l0000_y.tif \
+  fi
+  if  [ "${ext,,}" = "jpg" ]; then
+    out_ext="png"
+    quality="2"
+    encoder="-qp "$quality""
+    left_x="cl0000_x.tif"
+    left_y="cl0000_y.tif"
+    left_a="cl0000.tif"
+   right_x="cr0000_x.tif"
+   right_y="cr0000_y.tif"
+   right_a="cr0000.tif"
+  else
+    out_ext="mp4"
+    quality="13"
+    left_x="l0000_x.tif"
+    left_y="l0000_y.tif"
+    left_a="l0000.tif"
+   right_x="r0000_x.tif"
+   right_y="r0000_y.tif"
+   right_a="r0000.tif"
+### Un-comment the desired encoder, will figure out how to select later
+## x264
+    encoder="-qp "$quality""
+## libx265
+#    encoder="-c:v libx265 -x265-params crf="$quality""
+## nvenc
+#   encoder="-rc constqp -qp "$quality" -cq "$quality" -c:v hevc_nvenc"
+  fi
+  resolution=$(mediainfo $fullpath |grep Width | tr -s " " | cut -d " " -f 4,3 | tr -d " ") 
+  if [ $resolution == "3840" ]; then
+    scalestring="";
+  else
+    scalestring="scale=w=3840:h=-1:flags=lanczos," 
+  fi
+#  Ffmpeg's wonderful remap filter
+  ffmpeg -y -i "$fullpath"  \
+  -i "$map_dir"/"$left_x" -i "$map_dir"/"$left_y" \
   -loop 1 -i "$map_dir"/Alpha_Map.tif \
-  -i "$map_dir"/r0000_x.tif -i "$map_dir"/r0000_y.tif \
-  -i "$map_dir"/l0000.tif -i "$map_dir"/r0000.tif \
+  -i "$map_dir"/"$right_x" -i "$map_dir"/"$right_y" \
+  -i "$map_dir"/"$left_a" -i "$map_dir"/"$right_a" \
   -metadata:s:v spherical-video='<rdf:SphericalVideo xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:GSpherical="http://ns.google.com/videos/1.0/spherical/"> <GSpherical:Spherical>true</GSpherical:Spherical> <GSpherical:Stitched>true</GSpherical:Stitched> <GSpherical:ProjectionType>equirectangular</GSpherical:ProjectionType> </rdf:SphericalVideo>' \
-  -c:v hevc_nvenc -rc constqp -qp 21 -cq 21 \
+  $encoder \
   -filter_complex \
   "[3]alphaextract[alf]; \
-   [v:0]split=2[l][r]; \
+   [v:0]"$scalestring"split=2[l][r]; \
    [l][1][2]remap[l_remap]; \
    [r][4][5]remap[r_remap]; \
    [l_remap]setsar=sar=1/1[l_sar]; \
@@ -51,12 +88,21 @@ if  ffmpeg -y -i "$1" \
    [r_blend][alf]alphamerge[r_rm_a]; \
    [l_blend][r_rm_a]overlay=0:0[merged]; \
    [merged]eq=contrast=1.4:brightness=0.2:gamma=1.2:saturation=0.9[out]" \
-   -map [out] -map 0:a? "$remap_dir"/"$base""_Remap_360.mkv" < /dev/null ;
-then
- Success_Remap "$1" "$remap_dir"/"$base""_Remap_360.mkv" 
-else
- rm -f "$remap_dir"/"$base""_Remap_360.mkv"
-fi
+   -map [out] -map 0:a? "$remap_dir"/"$base""_Remap_360.""$out_ext" < /dev/null && \
+   Success_Remap "$fullpath" "$remap_dir"/"$base""_Remap_360.""$out_ext" "$original_dir" 
+done
+
+#Other crap
+# x264 quality
+#  -qp "$quality"  \
+
+# hevc_nvenc quality
+#  -rc constqp -qp "$quality" -cq "$quality" -c:v hevc_nvenc \
+
+# livx265 quality
+#  -c:v libx265 -x265-params crf="$quality" \
+
 #-hwaccel cuvid -c:v hevc_cuvid
 #[r_blend][alf]alphamerge[r_rm_a]; \
-
+#first step of detecting resolution
+#ffprobe 360_0057.MP4 2>&1| grep Stream | cut -d"," -f3
