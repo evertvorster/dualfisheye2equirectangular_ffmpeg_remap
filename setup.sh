@@ -1,5 +1,5 @@
 #!/bin/bash
-cp *tif Original
+cp *tif data/Original
 for i in {1..3}
 do
 ./Multimap $1

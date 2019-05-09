@@ -4,4 +4,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ffmpeg
 RUN mkdir -p /app
 WORKDIR /app
-CMD ["bash", "-c","cd /app/; ./setup.sh"]
+CMD ["bash", "-c","cd /app/; ./setup.sh 360_0103_0.MP4"]
