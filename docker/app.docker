@@ -1,0 +1,9 @@
+FROM ubuntu:18.04
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  mediainfo \
+  ffmpeg
+RUN mkdir -p /app
+COPY dfe2er /app
+RUN mkdir -p /data
+WORKDIR /data
+ENTRYPOINT ["/app/Multimap"]
