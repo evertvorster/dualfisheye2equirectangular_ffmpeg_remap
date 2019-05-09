@@ -1,3 +1,34 @@
+
+#INSTALLATION
+
+git clone or unzip the repository in a directory
+
+## DEPENDENCIES
+
+### Ubuntu 18.04
+
+```
+apt install -y ffmpeg mediainfo
+```
+
+### Ubuntu 16.04
+
+```
+add-apt-repository ppa:jonathonf/ffmpeg-3
+apt update
+apt dist-upgrade
+apt install -y ffmpeg mediainfo
+```
+
+## STEPS
+
+1. make a short (1 minute or less) dualfisheye video of the resolution you plan to use
+2. put it in this directory
+3. cd into this directory
+4. change the map\_dir variable in Multimap to be equivalent to $PWD/Original
+5. run ./setup.sh
+
+### DEVELOPMENT
 # dualfisheye2equirectangular_ffmpeg_remap
 This is my foray into using ffmpeg's remap filters to turn dual fisheye
 footage into the equirectangular footage used by VR video on Youtube
