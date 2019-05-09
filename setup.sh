@@ -1,6 +1,7 @@
 #!/bin/bash
-cp *tif data/Original
+#cp *tif data/Original
+cd data
 for i in {1..3}
 do
-./Multimap $1
+../Multimap 
 done
