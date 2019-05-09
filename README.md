@@ -22,11 +22,25 @@ apt install -y ffmpeg mediainfo
 
 ## STEPS
 
+This is verified to work with default Samsung 360 (2017) with 
+Video Size setting 2880x1440
+
+### Local
+
 1. make a short (1 minute or less) dualfisheye video of the resolution you plan to use
-2. put it in this directory
+2. put it in /data directory
 3. cd into this directory
 4. change the map\_dir variable in Multimap to be equivalent to $PWD/Original
 5. run ./setup.sh
+
+### Docker
+1. make a short (1 minute or less) dualfisheye video of the resolution you plan to use
+2. put it in /data directory
+3. make sure you have docker-ce installed
+4. run ./buildDocker.sh
+
+Then you can put the shell script dfe2er.sh in your PATH and use it to convert
+any directory full of dualfisheye videos (of the same format) to equirectangular
 
 ### DEVELOPMENT
 # dualfisheye2equirectangular_ffmpeg_remap
